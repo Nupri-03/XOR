@@ -1,0 +1,497 @@
+#include "a2.h"
+#include <ctype.h>
+
+int convert_bin(int n);
+char* format_output_string(char* input_string);
+int convert_dec(int n);
+int is_message_spot(int row, int column);
+int find_next_x(int curr_x, int curr_y);
+int find_next_y(int curr_x, int curr_y);
+int get_cell_value(int row, int column);
+int find_next_position(int start_position);
+char* omg(char* code);
+char* blah(char* code);
+int find_smallest(int a, int b, int c);
+
+//___________________________________________________________
+int bitwise_xor(int value){ // should return the integer 16 if KEY is ‘S’
+  if (KEY == 0) 
+    return value;
+  return value^KEY;
+}
+//___________________________________________________________
+int convert_bin(int n) { 
+  int bin = 0;
+  int rem, i = 1;
+
+  while (n!=0) {
+    rem = n % 2;
+    n /= 2;
+    bin += rem * i;
+    i *= 10;
+  }
+  return bin;
+}
+//___________________________________________________________
+char* format_output_string(char* input_string) {
+  int j = 0;
+  
+  char c;
+  char* output_string = (char*) malloc(sizeof(char) * 8 );
+  memset(output_string, 0, sizeof(char) * 8);
+  
+  for (int i = 0; i < 7; i++) {
+    c = input_string[i];
+    if (input_string[i] == '\0'){
+      j++;
+    }
+  }
+  for (int k = 0; k < j; k++) {
+    output_string[k] = '0';
+  }
+  for (int i = 0; i < 7-j; i++) {
+    output_string[i+j] = input_string[i];
+  }
+  
+  return output_string;
+}
+//___________________________________________________________
+int convert_dec(int n) { 
+  int dec = 0, i = 0, rem;
+
+  while (n!=0) {
+    rem = n % 10;
+    n /= 10;
+    dec += rem * pow(2, i);
+    ++i;
+  }
+
+  return dec;
+}
+//___________________________________________________________
+
+char *xor_encrypt(char c){ 
+  
+  char* output = malloc(sizeof(char) * 8);
+  memset(output, 0, sizeof(char) * 8);
+  
+  int c_a = toascii(c); 
+  int ascii = c;
+
+  int out_i = c_a^KEY;
+  
+  int binary = convert_bin(out_i);
+  sprintf(output, "%d", binary);
+  
+  char* output_string = format_output_string(output);
+  output_string[7] = '\0';
+  free(output);
+  return output_string;
+}
+//___________________________________________________________
+char xor_decrypt(char *s){ 
+
+  int s_n = atoi(s);
+  int s_n2 = convert_dec(s_n);
+  int result = s_n2^KEY;
+  return result;
+
+}
+
+//___________________________________________________________
+
+int is_message_spot(int row, int column) {
+  if ((row < 5) && (column > 4) && (column < 11) ) {
+    return 1;
+  }
+
+  if ((row > 4) && (row < 11)) {
+    return 1;
+  }
+
+  if ((row > 10) && (row < 15) && (column > 4)) {
+    return 1;
+  }
+  if ((row == 15) && (column > 4) && (column < 15)) {
+    return 1;
+  }
+  
+  return 0;
+}
+//___________________________________________________________
+int find_next_x(int curr_x, int curr_y) {
+  if ((curr_x < 5) && (curr_y < 10)) {
+    return curr_x;
+  }
+  if ((curr_x < 5) && (curr_y == 10)) {
+    return curr_x + 1;
+  }
+  if ((curr_x >= 5) && (curr_x <= 10) &&  (curr_y == 15)) {
+    return curr_x + 1;
+  }
+  if ((curr_x >= 11) && (curr_x <= 14) &&  (curr_y == 15)) {
+    return curr_x + 1;
+  }
+  return curr_x;
+}
+//___________________________________________________________
+int find_next_y(int curr_x, int curr_y) {
+  if ((curr_x < 5) && (curr_y < 10)) {
+    return curr_y + 1;
+  }
+  if ((curr_x < 4) && (curr_y == 10)) {
+    return 5;
+  }
+  if ((curr_x == 4) && (curr_y == 10)) {
+    return 0;
+  }
+  if ((curr_x >= 5) && (curr_x < 10) &&  (curr_y == 15)) {
+    return 0;
+  }
+  if ((curr_x >= 10) && (curr_y == 15)) {
+    return 5;
+  }
+  return curr_y + 1;
+}
+
+//___________________________________________________________
+int get_cell_value(int row, int column) {
+  if ((row == 0 || row == 4) && ((column < 5) || (column > 10 && column < 16))) {
+      return 1;
+  }
+  if ((row == 1 || row == 3) && (column == 0 || column == 4 || column == 11 || column == 15)) {
+      return 1;
+  }
+  if (row == 2 && (column == 0  || column == 2 || column == 4 || column == 11 || column == 13 || column == 15)) {
+      return 1;
+  }
+  if ((row == 11 || row == 15) && column < 5) {
+      return 1;
+  }
+  if ((row == 12 || row == 14) && (column == 0 || column == 4)) {
+      return 1;
+  }
+  if (row == 13 && (column == 0  || column == 2 || column == 4)) {
+      return 1;
+  }
+  if (row == 15 && column == 15) {
+      return 1;
+  }
+  return 0;
+}
+//___________________________________________________________
+int find_next_position(int start_position) {
+  int position = start_position;
+  switch(position) {
+    case 0:
+      return 5;
+    case 10:
+    case 26:
+    case 42:
+    case 58:
+      return position + 11;
+    case 74:
+    case 175:
+    case 191:
+    case 207:
+    case 223:
+    case 239:
+      return position + 6;
+    default:
+      return position + 1;
+  }
+}
+//___________________________________________________________
+char *gen_code(char *msg){
+  int dataLen = strlen(msg);
+  char* output = (char*)malloc(sizeof(char)* ((dataLen+1)*7));
+  memset(output, '\0', (sizeof(char)* ((dataLen)*7)));
+  char * encrypted_string;
+  
+  dataLen = dataLen > 25 ? 25 : dataLen;
+
+	for (int i = 0; i < dataLen; ++i) {
+    encrypted_string = xor_encrypt(msg[i]);
+    strcat(output, encrypted_string);
+    free(encrypted_string);
+  }
+
+
+  char* sc_code = (char*) malloc(sizeof(char) * (257));
+  memset(sc_code,'\0',sizeof(char) * (257));
+  
+  int sc_code_array[16][16] = {};
+  int rows, columns;
+
+  for(int rows = 0; rows < 16; rows++) {
+  	for(int columns = 0; columns < 16; columns++){
+  		sc_code_array[rows][columns] = get_cell_value(rows, columns);
+		}
+  }
+  
+  //Get the incomign string legnth
+  int input_string_length = dataLen >= 25 ? 25 : dataLen + 1;
+  char * encrypted_char;
+  int is_message_location = 0;
+  int curr_x = 0;
+  int curr_y = 5;
+  int interim_curr_x = 0;
+  int interim_curr_y = 5;
+
+  //Loop throught each character of the string, encript it, and put in sc_code array
+  for (int string_char_at = 0; string_char_at < input_string_length; string_char_at++) {
+    encrypted_char =xor_encrypt(msg[string_char_at]);    
+    for (int encprited_char_at = 0; encprited_char_at < 7; encprited_char_at++) {
+      sc_code_array[curr_x][curr_y] = encrypted_char[encprited_char_at] == '1' ? 1 : 0;
+      interim_curr_x = curr_x;
+      interim_curr_y = curr_y;
+      curr_x = find_next_x(interim_curr_x, interim_curr_y);
+      curr_y = find_next_y(interim_curr_x, interim_curr_y);
+    }
+    free(encrypted_char);
+  }
+
+  int i = 0;
+
+  for(int rows = 0; rows < 16; rows++) {
+  	for(int columns = 0; columns < 16; columns++) {
+  		sc_code[i] = sc_code_array[rows][columns] + '0';
+      i++;
+		}
+  }
+
+  free(output);
+
+  return sc_code;
+}
+//___________________________________________________________
+char *read_code(char *code){
+
+  int start_position = find_next_position(0);
+  int curr_position;
+  char letter;
+  char* encrypted_string = (char*)malloc(sizeof(char*) * 181);
+  memset(encrypted_string, '\0', sizeof(char*) * 181);
+  
+  int i = 0;
+  int j = 0;
+  int k = 0;
+  int letterCount = 0;
+
+  char* output = (char*)malloc(sizeof(char) * 26);
+  memset(output, '\0', sizeof(char) * 26);
+
+  do {
+    curr_position = start_position;
+    if (curr_position < 256) {
+      encrypted_string[i] = code[curr_position];
+      start_position = find_next_position(curr_position);
+    }
+    
+    if (i == 6) {
+      letter = xor_decrypt(encrypted_string);
+
+      output[letterCount] = letter;
+      letterCount++;
+      if (letter == '\0' || letterCount == 25) {
+        k = 300;
+      }
+      i = 0;
+      j = 0;
+    } 
+    else {
+      i++;
+      j++;
+    }
+    k++;
+
+  } while (k < 256);
+
+  if (strlen(output) == 25) {
+    output[25] = '\0';
+  }
+  else{
+    output[strlen(output)] = '\0';
+  };
+
+  free(encrypted_string);
+  return output;
+}
+//___________________________________________________________
+
+char* omg(char* code){
+
+int value = strtol(code, NULL, 2);
+char* hexString = malloc(sizeof(char) * 16);
+sprintf(hexString, "%X", value);
+return hexString;
+
+}
+
+char* blah(char* code){
+
+  long int i = 0;
+  
+	while(code[i])
+	{
+		switch(code[i])
+		{
+			case '0' : return("0000");
+				break;
+			case '1' : return("0001");
+				break;
+			case '2' : return("0010");
+				break;
+			case '3' : return("0011");
+				break;
+			case '4' : return("0100");
+				break;
+			case '5' : return("0101");
+				break;
+			case '6' : return("0110");
+				break;
+			case '7' : return("0111");
+				break;
+			case '8' : return("1000");
+				break;
+			case '9' : return("1001");
+				break;
+			case 'A' : return("1010");
+				break;
+			case 'B' : return("1011");
+				break;
+			case 'C' : return("1100");
+				break;
+			case 'D' : return("1101");
+				break;
+			case 'E' : return("1110");
+				break;
+			case 'F' : return("1111");
+				break;
+
+}
+
+    }
+return "\0";
+
+  }
+  
+
+//___________________________________________________________
+
+
+char *compress(char *code){
+  int i = 0;
+  int len = 0;
+  
+  len = strlen(code);
+
+  char** strings = malloc(256 * sizeof(char*));
+  char* output = malloc(sizeof(char*) * 64);
+
+  memset(strings, 0, (sizeof(char*) * 256));
+  memset(output, 0, (sizeof(char*) * 64));
+
+
+  while (i * (4) < len) {
+
+    char* dest = (char *)malloc(5*sizeof(char));
+    dest[4] = '\0';
+    strncpy(dest, code + (i*4), (4));
+
+    strings[i] = dest;
+    char * omgStr = omg(strings[i]);
+
+    strcat(output, omgStr);
+    free(omgStr);
+    free(dest); 
+    i++;
+  }
+
+  free(strings);
+  return output;
+}
+
+//___________________________________________________________
+
+char *decompress(char *code){
+
+int i = 0;
+int len = strlen(code);
+
+char** strings = malloc(256 * sizeof(char*));
+char* output = malloc(sizeof(char*) * 64);
+
+memset(strings, 0, (sizeof(char*) * 256));
+memset(output, 0, (sizeof(char*) * 64));
+
+while (i < len) {
+    char* dest = (char *)malloc(4*sizeof(char));
+    dest[1] = '\0';
+    strncpy(dest, code + (i), (1));
+
+    strings[i] = dest;
+
+
+    strcat(output, blah(strings[i]));
+    free(dest);
+    i++;
+  }
+
+free(strings);
+return output;
+
+
+}
+//___________________________________________________________
+
+int find_smallest(int a, int b, int c)
+{	
+	if(a <= b && a <= c)
+	{
+		return a;
+	}
+	else if(b <= a && b <= c)
+	{
+		return b;
+	}
+	else if(c <= a && c <= b)
+	{
+		return c;
+	}
+
+  return 0;
+}
+
+//___________________________________________________________
+
+int calc_ld(char *sandy, char *cima){
+  
+  int i;
+  int j;
+  int sandy_len;
+  int cima_len;
+  
+    sandy_len = strlen(sandy);
+    cima_len = strlen(cima);
+  
+    int arr[cima_len + 1][sandy_len + 1];
+    arr[0][0] = 0;
+  
+    for (i = 1; i <= cima_len; i++) {
+        arr[i][0] = arr[i-1][0] + 1;}
+  
+    for (j = 1; j <= sandy_len; j++) {
+        arr[0][j] = arr[0][j-1] + 1; }
+  
+    for (i = 1; i <= cima_len; i++) {
+      
+        for (j = 1; j <= sandy_len; j++) {
+          
+            arr[i][j] = find_smallest(arr[i-1][j] + 1, arr[i][j-1] + 1, arr[i-1][j-1] + (sandy[j-1] == cima[i-1] ? 0 : 1));
+
+      }
+  }
+
+    return(arr[cima_len][sandy_len]);
+}
